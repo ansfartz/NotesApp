@@ -1,0 +1,45 @@
+# Built application files
+*.apk
+*.ap_
+*.aab
+
+# Files for the ART/Dalvik VM
+*.dex
+
+# Java class files
+*.class
+
+# Generated files
+bin/
+gen/
+out/
+
+# Gradle files
+.gradle/
+build/
+*.hprof
+
+# Local configuration file
+local.properties
+
+# Android Studio
+*.iml
+.idea/
+.navigation/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Keystore files (uncomment if not storing in repo)
+# *.jks
+# *.keystore
+
+# Google Services (uncomment if using Firebase and keeping keys private)
+# google-services.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Copilot instructions
+.github/copilot-instructions.md
