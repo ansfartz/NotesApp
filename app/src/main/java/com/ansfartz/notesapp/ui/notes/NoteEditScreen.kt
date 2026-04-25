@@ -111,7 +111,7 @@ fun NoteEditScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .background(selectedColor)
+                .background(Color(selectedColor))
                 .padding(16.dp),
         ) {
             ColorPicker(
@@ -153,9 +153,9 @@ fun NoteEditScreen(
 
 @Composable
 private fun ColorPicker(
-    colors: List<Color>,
-    selectedColor: Color,
-    onColorSelected: (Color) -> Unit,
+    colors: List<Int>,
+    selectedColor: Int,
+    onColorSelected: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -168,7 +168,7 @@ private fun ColorPicker(
                 modifier = Modifier
                     .size(36.dp)
                     .clip(CircleShape)
-                    .background(color)
+                    .background(Color(color))
                     .then(
                         if (isSelected) {
                             Modifier.border(

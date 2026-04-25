@@ -27,6 +27,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -83,7 +84,7 @@ internal fun NoteCard(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = note.color),
+        colors = CardDefaults.cardColors(containerColor = Color(note.color)),
         shape = MaterialTheme.shapes.medium,
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
@@ -157,10 +158,34 @@ private fun NotesScreenEmptyPreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun NoteCardPreview() {
+private fun NoteCardPreview_short() {
     NotesAppTheme {
         NoteCard(
-            note = Note(title = "Sample Note", body = "This is the body", color = NoteColors.all[5]),
+            note = Note(
+                title = "Sample Note",
+                body = "This is the body of my sample note.",
+                color = NoteColors.all[5]
+            ),
+            onClick = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun NoteCardPreview_long() {
+    NotesAppTheme {
+        NoteCard(
+            note = Note(
+                title = "Sample Note With a Really Long Title That Should Be Truncated. " +
+                        "Let's see how it looks when it exceeds the max lines limit.",
+                body = "This is the body of my sample note. " +
+                        "It can be quite long, but will be truncated in the preview." +
+                        "\nlorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " +
+                        "\nlorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " +
+                        "\nlorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ",
+                color = NoteColors.all[4]
+            ),
             onClick = {},
         )
     }
