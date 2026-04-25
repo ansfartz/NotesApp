@@ -3,7 +3,6 @@ package com.ansfartz.notesapp.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -11,18 +10,20 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.ansfartz.notesapp.NotesApplication
+import com.ansfartz.notesapp.data.repository.NoteRepository
 import com.ansfartz.notesapp.ui.notes.NoteEditScreen
 import com.ansfartz.notesapp.ui.notes.NotesScreen
 import com.ansfartz.notesapp.viewmodel.NotesViewModel
 import com.ansfartz.notesapp.viewmodel.NotesViewModelFactory
 
 @Composable
-fun NotesNavGraph(modifier: Modifier = Modifier) {
+fun NotesNavGraph(
+    noteRepository: NoteRepository,
+    modifier: Modifier = Modifier,
+) {
     val navController = rememberNavController()
-    val app = LocalContext.current.applicationContext as NotesApplication
     val viewModel: NotesViewModel = viewModel(
-        factory = NotesViewModelFactory(app.noteRepository),
+        factory = NotesViewModelFactory(noteRepository),
     )
 
     NavHost(

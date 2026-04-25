@@ -4,7 +4,7 @@ package com.ansfartz.notesapp.data
  * Core data model — free of UI-framework types so it can be used by any
  * layer (data, domain, ViewModel) without pulling in Compose or Android UI dependencies.
  *
- * Color is stored as an ARGB [Int];the UI layer converts it
+ * Color is stored as an ARGB [Int]; the UI layer converts it
  * to [androidx.compose.ui.graphics.Color] when rendering.
  */
 data class Note(

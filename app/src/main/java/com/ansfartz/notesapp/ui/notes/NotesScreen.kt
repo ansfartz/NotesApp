@@ -158,7 +158,7 @@ private fun NotesScreenEmptyPreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun NoteCardPreview_short() {
+private fun NoteCardPreviewShort() {
     NotesAppTheme {
         NoteCard(
             note = Note(
@@ -173,7 +173,7 @@ private fun NoteCardPreview_short() {
 
 @Preview(showBackground = true)
 @Composable
-private fun NoteCardPreview_long() {
+private fun NoteCardPreviewLong() {
     NotesAppTheme {
         NoteCard(
             note = Note(

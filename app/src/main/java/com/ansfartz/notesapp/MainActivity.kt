@@ -11,9 +11,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val app = application as NotesApplication
         setContent {
             NotesAppTheme {
-                NotesNavGraph()
+                NotesNavGraph(noteRepository = app.noteRepository)
             }
         }
     }

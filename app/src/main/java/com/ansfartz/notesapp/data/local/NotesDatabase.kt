@@ -7,8 +7,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.ansfartz.notesapp.data.Note
-import com.ansfartz.notesapp.data.NoteColors
+import com.ansfartz.notesapp.data.createSampleNotes
 
 /**
  * Room database holding the "notes" table.
@@ -38,7 +37,7 @@ abstract class NotesDatabase : RoomDatabase() {
 private class SeedCallback : RoomDatabase.Callback() {
     override fun onCreate(db: SupportSQLiteDatabase) {
         super.onCreate(db)
-        sampleNotes().forEach { note ->
+        createSampleNotes().forEach { note ->
             val values = ContentValues().apply {
                 put("id", note.id)
                 put("title", note.title)
@@ -49,36 +48,3 @@ private class SeedCallback : RoomDatabase.Callback() {
         }
     }
 }
-
-private fun sampleNotes(): List<Note> = listOf(
-    Note(
-        id = 1L,
-        title = "Grocery List",
-        body = "Eggs\nMilk\nBread\nButter\nCheese",
-        color = NoteColors.all[0],
-    ),
-    Note(
-        id = 2L,
-        title = "Meeting Notes",
-        body = "Discuss Q2 roadmap\nReview design specs\nAssign sprint tasks",
-        color = NoteColors.all[1],
-    ),
-    Note(
-        id = 3L,
-        title = "Ideas",
-        body = "Build a notes app with Jetpack Compose",
-        color = NoteColors.all[4],
-    ),
-    Note(
-        id = 4L,
-        title = "Workout Plan",
-        body = "Monday: Chest & Triceps\nWednesday: Back & Biceps\nFriday: Legs & Shoulders",
-        color = NoteColors.all[2],
-    ),
-    Note(
-        id = 5L,
-        title = "",
-        body = "Remember to call Mom this weekend!",
-        color = NoteColors.all[3],
-    ),
-)
