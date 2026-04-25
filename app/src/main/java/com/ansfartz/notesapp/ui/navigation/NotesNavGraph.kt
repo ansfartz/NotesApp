@@ -10,14 +10,21 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.ansfartz.notesapp.data.repository.NoteRepository
 import com.ansfartz.notesapp.ui.notes.NoteEditScreen
 import com.ansfartz.notesapp.ui.notes.NotesScreen
-import com.ansfartz.notesapp.ui.notes.NotesViewModel
+import com.ansfartz.notesapp.viewmodel.NotesViewModel
+import com.ansfartz.notesapp.viewmodel.NotesViewModelFactory
 
 @Composable
-fun NotesNavGraph(modifier: Modifier = Modifier) {
+fun NotesNavGraph(
+    noteRepository: NoteRepository,
+    modifier: Modifier = Modifier,
+) {
     val navController = rememberNavController()
-    val viewModel: NotesViewModel = viewModel()
+    val viewModel: NotesViewModel = viewModel(
+        factory = NotesViewModelFactory(noteRepository),
+    )
 
     NavHost(
         navController = navController,
@@ -27,9 +34,9 @@ fun NotesNavGraph(modifier: Modifier = Modifier) {
         composable(
             route = Screen.NotesList.route
         ) {
-            val notes by viewModel.notes.collectAsStateWithLifecycle()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             NotesScreen(
-                notes = notes,
+                notes = uiState.notes,
                 onNoteClick = { noteId ->
                     navController.navigate(Screen.NoteEdit.createRoute(noteId))
                 },
