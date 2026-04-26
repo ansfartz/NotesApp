@@ -64,22 +64,6 @@ data class Note(
 )
 ```
 
-**Why `Int` instead of `Color`?**  
-`androidx.compose.ui.graphics.Color` is a Compose UI type.  If the data
-class used it, the model layer would depend on the UI framework — breaking
-the separation that makes MVVM useful.  By storing color as a raw ARGB
-`Int`, the model stays framework-independent.  The UI layer converts it
-to a Compose `Color` only at the point of rendering:
-
-```kotlin
-// In a composable:
-CardDefaults.cardColors(containerColor = Color(note.color))
-```
-
-This pattern is especially important when you add persistence later (Room,
-DataStore, network).  An `Int` serializes trivially; a `Color` object
-does not.
-
 #### `NoteRepository.kt` — Interface (contract)
 
 ```kotlin
@@ -93,8 +77,7 @@ interface NoteRepository {
 
 **Why an interface?**  
 The ViewModel depends on the *contract*, not a concrete class.  This
-means you can swap implementations without changing any ViewModel or UI
-code:
+means you can swap implementations without changing any ViewModel or UI code:
 
 | Implementation | Backing store | When to use |
 |----------------|---------------|-------------|
@@ -137,10 +120,11 @@ class LocalNoteRepository(private val dao: NoteDao) : NoteRepository {
 ```
 
 **Why a separate `NoteEntity`?**  
-The Room entity (`NoteEntity`) has database annotations (`@Entity`,
-`@PrimaryKey`).  The domain model (`Note`) stays clean.  Mapper
-functions at the repository boundary convert between them.  This means
-the database schema never leaks into the UI or ViewModel.
+
+The Room entity (`NoteEntity`) has database annotations (`@Entity`,`@PrimaryKey`).  
+The domain model (`Note`) stays clean.  
+Mapper extension functions are defined alongside `NoteEntity` and invoked exclusively in the repository layer to convert between the two.  
+This means the database schema never leaks into the UI or ViewModel.
 
 **Why a Repository?**  
 The Repository is the **single source of truth** for note data.  The
