@@ -20,7 +20,6 @@ com.ansfartz.notesapp/
 │   │   └── NotesDatabase.kt               ← Room database + seed callback
 │   └── repository/
 │       ├── NoteRepository.kt              ← Interface (contract)
-│       ├── InMemoryNoteRepository.kt      ← In-memory implementation
 │       └── LocalNoteRepository.kt         ← Room/SQLite implementation
 ├── ui/                                    ← VIEW layer
 │   ├── navigation/
@@ -81,31 +80,16 @@ means you can swap implementations without changing any ViewModel or UI code:
 
 | Implementation | Backing store | When to use |
 |----------------|---------------|-------------|
-| `InMemoryNoteRepository` | `MutableStateFlow` in process memory | Prototyping, unit tests |
 | `LocalNoteRepository` | Room/SQLite on disk | Production (default) |
 | *(future)* `RemoteNoteRepository` | REST API / Firebase | Cloud sync |
 
-To swap, change one line in `NotesApplication.kt`:
+The repository is provided in `NotesApplication.kt`:
 
 ```kotlin
 val noteRepository: NoteRepository by lazy {
-    LocalNoteRepository(database.noteDao())   // ← persisted (default)
-    // InMemoryNoteRepository()               // ← in-memory alternative
+    LocalNoteRepository(database.noteDao())
 }
 ```
-
-**Why `Flow` instead of `StateFlow`?**  
-Room's DAO returns a `Flow` backed by SQLite triggers.  `StateFlow` is a
-subtype of `Flow`, so the in-memory implementation can still use
-`MutableStateFlow` under the hood.  The ViewModel converts the `Flow` to
-`StateFlow` via `stateIn()` — that's the ViewModel's job, not the
-Repository's.
-
-**Why `suspend`?**  
-Database operations can't run on the main thread (they'd freeze the UI).
-`suspend` lets Room run them on a background thread automatically.
-The in-memory implementation's `suspend` methods complete instantly —
-no actual suspension happens, so no performance penalty.
 
 #### `LocalNoteRepository.kt` — Room/SQLite implementation
 
@@ -161,18 +145,6 @@ fun NotesScreen(
 )
 ```
 
-**Why stateless?**
-
-- **Previewable:** You can render any screen in `@Preview` by passing
-  fake data — no ViewModel or database needed.
-- **Testable:** UI tests supply data directly; no need to mock a ViewModel.
-- **Reusable:** The same screen composable works in different navigation
-  contexts.
-
-The View doesn't know *where* data comes from or *what happens* when the
-user taps a button.  It just calls the callback and trusts that the layer
-above (the nav graph / ViewModel) handles it.
-
 #### Navigation (`NotesNavGraph.kt`)
 
 The nav graph is the **wiring layer** — it connects Views to the
@@ -180,10 +152,13 @@ ViewModel:
 
 ```kotlin
 val app = LocalContext.current.applicationContext as NotesApplication
+
 val viewModel: NotesViewModel = viewModel(
     factory = NotesViewModelFactory(app.noteRepository),
 )
 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+
 
 NotesScreen(
     notes = uiState.notes,
@@ -201,9 +176,8 @@ dependency container), creates the ViewModel via a factory, collects the
 
 ### 3. ViewModel — `viewmodel/`
 
-**What goes here:** ViewModels and UI state classes.  The ViewModel
-*transforms* data-layer state into UI-ready state and exposes it as a
-reactive stream.
+**What goes here:** ViewModels and UI state classes.  
+The ViewModel *transforms* data-layer state into UI-ready state and exposes it as a reactive stream.
 
 **Why it matters:** The ViewModel is the **bridge** between the Model and
 the View.  It survives configuration changes (screen rotation) and
@@ -237,7 +211,7 @@ a loading spinner and an error at the same time).
 
 ```kotlin
 class NotesViewModel(
-    private val repository: NoteRepository = InMemoryNoteRepository(),
+    private val repository: NoteRepository,
 ) : ViewModel() {
 
     val uiState: StateFlow<NotesUiState> = repository.notes
@@ -272,8 +246,7 @@ class NotesViewModel(
   UI is observing — but that requires active collectors in tests rather
   than simple `.value` reads.
 - **`initialValue`:** Set to an empty `NotesUiState()`.  The data loads
-  almost instantly from Room (or immediately from in-memory), so the
-  empty state is never visible to the user.
+  almost instantly from Room, so the empty state is never visible to the user.
 
 ---
 
@@ -318,13 +291,12 @@ Client
 │  │            │  NoteRepository    │  (interface)            │  │
 │  │            │  notes: Flow       │                         │  │
 │  │            └─────────┬──────────┘                         │  │
-│  │            ┌─────────┴─────────┐                          │  │
-│  │            │                   │                          │  │
-│  │            ▼                   ▼                          │  │
-│  │   ┌──────────────┐        ┌──────────────┐                │  │
-│  │   │    Local     │        │  In-Memory   │                │  │
-│  │   │  Repository  │        │  Repository  │                │  │
-│  │   └──────┬───────┘        └──────────────┘                │  │
+│  │            │                                                │  │
+│  │            ▼                                                │  │
+│  │   ┌──────────────┐                                          │  │
+│  │   │    Local     │                                          │  │
+│  │   │  Repository  │                                          │  │
+│  │   └──────┬───────┘                                          │  │
 │  │          │                                                │  │
 │  │          ▼                                                │  │
 │  │   ┌──────────────┐                                        │  │
@@ -345,7 +317,7 @@ Client
   (`stateIn`) → Screens (`collectAsStateWithLifecycle`).  The UI
   observes a stream and recomposes automatically.
 - **Events flow down:** Screens → ViewModel (`saveNote()`, `deleteNote()`)
-  → Repository → Data source (`suspend` write to Room or in-memory).
+  → Repository → Data source (`suspend` write to Room).
 
 The **Manual DI** bar represents `NotesApplication`, which acts as a
 simple service locator — it creates the Room database and repository as
@@ -377,7 +349,7 @@ execute immediately.
 
 | Pattern | Difference from MVVM |
 |---------|---------------------|
-| **MVC** | Controller and View are often tightly coupled.  Hard to test. |
+| **MVC** | Controller and View are often tightly coupled. Hard to test. |
 | **MVP** | Presenter holds a reference to the View interface — more boilerplate, harder to use with Compose. |
 | **MVI** | Like MVVM but with explicit `Intent` objects for every user action and a `reduce` function.  More predictable, more verbose.  Natural next step from this codebase. |
 
@@ -388,16 +360,14 @@ execute immediately.
 These improvements build on the current MVVM foundation:
 
 1. **Persistence (Room)** ✅ **Done!** `LocalNoteRepository` persists
-   notes to SQLite via Room.  Swappable with `InMemoryNoteRepository`
-   by changing one line in `NotesApplication.kt`.
+   notes to SQLite via Room.
 
 2. **Dependency Injection (Hilt):** Replace `NotesApplication` manual DI
    and `NotesViewModelFactory` with `@HiltViewModel` + `@Inject`.
    Cleaner wiring, automatic scoping.
 
 3. **Repository Interface** ✅ **Done!** `NoteRepository` is an
-   interface with two implementations: `InMemoryNoteRepository` and
-   `LocalNoteRepository`.
+   interface with `LocalNoteRepository` as its implementation.
 
 4. **MVI Refactor:** Introduce a sealed `NotesIntent` class
    (`AddNote`, `DeleteNote`, `UpdateNote`) and a `reduce()` function in

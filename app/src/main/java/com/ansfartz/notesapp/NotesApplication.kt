@@ -14,12 +14,7 @@ class NotesApplication : Application() {
 
     private val database by lazy { NotesDatabase.create(this) }
 
-    /**
-     * The single [NoteRepository] instance for the app.
-     * Change this line to swap between implementations:
-     *   - [com.ansfartz.notesapp.data.repository.LocalNoteRepository]      → persists notes to SQLite (default)
-     *   - [com.ansfartz.notesapp.data.repository.InMemoryNoteRepository]   → notes live in memory only
-     */
+    /** The single [NoteRepository] instance for the app. */
     val noteRepository: NoteRepository by lazy {
         LocalNoteRepository(database.noteDao())
     }

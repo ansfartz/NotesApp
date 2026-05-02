@@ -2,6 +2,7 @@ package com.ansfartz.notesapp.viewmodel
 
 import com.ansfartz.notesapp.data.Note
 import com.ansfartz.notesapp.data.NoteColors
+import com.ansfartz.notesapp.data.repository.FakeNoteRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -20,7 +21,7 @@ class NotesViewModelTest {
 
     @Before
     fun setUp() {
-        viewModel = NotesViewModel()
+        viewModel = NotesViewModel(FakeNoteRepository())
     }
 
     // --- Initial state ---

@@ -1,9 +1,7 @@
 package com.ansfartz.notesapp.data
 
 /**
- * Sample notes used for seeding both the in-memory repository and the
- * Room database on first creation.  Defined once here so they can't
- * drift out of sync.
+ * Sample notes used for seeding the Room database on first creation.
  */
 fun createSampleNotes(): List<Note> = listOf(
     Note(

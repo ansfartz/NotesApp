@@ -3,7 +3,6 @@ package com.ansfartz.notesapp.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ansfartz.notesapp.data.Note
-import com.ansfartz.notesapp.data.repository.InMemoryNoteRepository
 import com.ansfartz.notesapp.data.repository.NoteRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +17,7 @@ import kotlinx.coroutines.launch
  * Android framework UI classes.
  */
 class NotesViewModel(
-    private val repository: NoteRepository = InMemoryNoteRepository(),
+    private val repository: NoteRepository,
 ) : ViewModel() {
 
     val uiState: StateFlow<NotesUiState> = repository.notes

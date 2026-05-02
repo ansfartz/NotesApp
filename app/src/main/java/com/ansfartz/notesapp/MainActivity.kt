@@ -14,7 +14,9 @@ class MainActivity : ComponentActivity() {
         val app = application as NotesApplication
         setContent {
             NotesAppTheme {
-                NotesNavGraph(noteRepository = app.noteRepository)
+                NotesNavGraph(
+                    noteRepository = app.noteRepository
+                )
             }
         }
     }
